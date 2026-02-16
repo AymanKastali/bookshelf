@@ -18,12 +18,20 @@ class EmptyBookTitleError <<Exception>> {
     "Book title must not be empty"
 }
 
+class BookTitleTooLongError <<Exception>> {
+    max_length : int
+}
+
 class InvalidISBNError <<Exception>> {
     "ISBN format is invalid"
 }
 
 class EmptySummaryError <<Exception>> {
     "Summary must not be empty"
+}
+
+class SummaryTooLongError <<Exception>> {
+    max_length : int
 }
 
 class InvalidPublishedYearError <<Exception>> {
@@ -34,8 +42,16 @@ class InvalidPageCountError <<Exception>> {
     "Page count must be positive"
 }
 
+class PageCountTooHighError <<Exception>> {
+    max_value : int
+}
+
 class EmptyGenreNameError <<Exception>> {
     "Genre name must not be empty"
+}
+
+class GenreNameTooLongError <<Exception>> {
+    max_length : int
 }
 
 class InvalidRatingError <<Exception>> {
@@ -46,12 +62,24 @@ class EmptyReviewCommentError <<Exception>> {
     "Review comment must not be empty"
 }
 
+class ReviewCommentTooLongError <<Exception>> {
+    max_length : int
+}
+
 class EmptyAuthorNameError <<Exception>> {
     "Author first and last name must not be empty"
 }
 
+class AuthorNameTooLongError <<Exception>> {
+    max_length : int
+}
+
 class EmptyAuthorBiographyError <<Exception>> {
     "Author biography must not be empty"
+}
+
+class AuthorBiographyTooLongError <<Exception>> {
+    max_length : int
 }
 
 abstract class InvalidOperationError <<Exception>> {
@@ -73,6 +101,18 @@ class GenreNotFoundError <<Exception>> {
     genre_name : str
 }
 
+class DuplicateIsbnError <<Exception>> {
+    isbn : str
+}
+
+class LastGenreRemovalError <<Exception>> {
+    "Cannot remove the last genre from a book"
+}
+
+class AuthorHasBooksError <<Exception>> {
+    author_id : str
+}
+
 ' ── Hierarchy ──────────────────────────────────────────────
 
 DomainException <|-- DomainValidationError
@@ -80,19 +120,29 @@ DomainException <|-- InvalidOperationError
 
 DomainValidationError <|-- RequiredFieldError
 DomainValidationError <|-- EmptyBookTitleError
+DomainValidationError <|-- BookTitleTooLongError
 DomainValidationError <|-- InvalidISBNError
 DomainValidationError <|-- EmptySummaryError
+DomainValidationError <|-- SummaryTooLongError
 DomainValidationError <|-- InvalidPublishedYearError
 DomainValidationError <|-- InvalidPageCountError
+DomainValidationError <|-- PageCountTooHighError
 DomainValidationError <|-- EmptyGenreNameError
+DomainValidationError <|-- GenreNameTooLongError
 DomainValidationError <|-- InvalidRatingError
 DomainValidationError <|-- EmptyReviewCommentError
+DomainValidationError <|-- ReviewCommentTooLongError
 DomainValidationError <|-- EmptyAuthorNameError
+DomainValidationError <|-- AuthorNameTooLongError
 DomainValidationError <|-- EmptyAuthorBiographyError
+DomainValidationError <|-- AuthorBiographyTooLongError
 
 InvalidOperationError <|-- DuplicateReviewError
 InvalidOperationError <|-- ReviewNotFoundError
 InvalidOperationError <|-- DuplicateGenreError
 InvalidOperationError <|-- GenreNotFoundError
+InvalidOperationError <|-- DuplicateIsbnError
+InvalidOperationError <|-- LastGenreRemovalError
+InvalidOperationError <|-- AuthorHasBooksError
 
 @enduml

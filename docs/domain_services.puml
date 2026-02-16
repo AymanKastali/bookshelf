@@ -1,0 +1,26 @@
+@startuml domain_services
+!theme blueprint
+
+title Bookshelf — Domain Services
+
+class VerifyIsbnUniqueness <<Service>> {
+    -book_repository: BookRepository
+    +VerifyIsbnUniqueness(book_repository: BookRepository)
+    +__call__(isbn: ISBN, exclude_book_id: BookId | None): None
+}
+
+class VerifyAuthorDeletability <<Service>> {
+    -book_repository: BookRepository
+    +VerifyAuthorDeletability(book_repository: BookRepository)
+    +__call__(author_id: AuthorId): None
+}
+
+interface BookRepository <<Port>> {
+    +isbn_exists(isbn: ISBN, exclude_book_id: BookId | None): bool
+    +has_books_by_author(author_id: AuthorId): bool
+}
+
+VerifyIsbnUniqueness ..> BookRepository : uses >
+VerifyAuthorDeletability ..> BookRepository : uses >
+
+@enduml
