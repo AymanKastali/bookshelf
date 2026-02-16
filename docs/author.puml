@@ -3,10 +3,12 @@
 
 title Author Aggregate
 
-class Author <<aggregate_root>> {
+class Author <<Aggregate Root>> {
     -id: AuthorId
     -name: AuthorName
     -biography: AuthorBiography
+
+    +{static} create(author_id: AuthorId, name: AuthorName, biography: AuthorBiography): Author
 
     +id(): AuthorId
     +name(): AuthorName

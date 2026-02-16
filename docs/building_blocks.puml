@@ -1,0 +1,42 @@
+@startuml building_blocks
+!theme blueprint
+
+title Bookshelf — Domain Building Blocks
+
+package "Building Blocks" {
+    abstract class Entity<IdT> {
+        -_id: IdT
+        +Entity(id: IdT)
+        +id(): IdT
+        +__eq__(other): bool
+        +__hash__(): int
+    }
+
+    abstract class AggregateRoot<IdT> {
+        -_events: list[DomainEvent]
+        +AggregateRoot(id: IdT)
+        +_record_event(event: DomainEvent): void
+        +collect_events(): list[DomainEvent]
+    }
+}
+
+Entity <|-- AggregateRoot
+
+package "Aggregates" {
+    class Book <<Aggregate Root>> {
+    }
+
+    class Author <<Aggregate Root>> {
+    }
+}
+
+package "Entities" {
+    class Review <<Entity>> {
+    }
+}
+
+AggregateRoot <|-- Book
+AggregateRoot <|-- Author
+Entity <|-- Review
+
+@enduml

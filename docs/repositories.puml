@@ -13,7 +13,8 @@ abstract class BookRepository <<Repository>> {
     {abstract} save(book: Book)
     {abstract} find_by_id(id: BookId) : Book | None
     {abstract} find_by_author(author_id: AuthorId) : list[Book]
-    {abstract} find_by_isbn(isbn: ISBN) : Book | None
+    {abstract} has_books_by_author(author_id: AuthorId) : bool
+    {abstract} isbn_exists(isbn: ISBN, exclude_book_id: BookId | None) : bool
 }
 
 abstract class AuthorRepository <<Repository>> {

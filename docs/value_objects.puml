@@ -7,73 +7,97 @@ title Value Objects
 
 class BookId <<value_object>> {
     -value: str
+    +BookId(value: str)
     +value(): str
 }
 
 class AuthorId <<value_object>> {
     -value: str
+    +AuthorId(value: str)
     +value(): str
 }
 
 class ReviewId <<value_object>> {
     -value: str
+    +ReviewId(value: str)
     +value(): str
 }
 
 ' --- Book Value Objects ---
 
 class BookTitle <<value_object>> {
+    {static} MAX_LENGTH: int = 200
     -value: str
+    +BookTitle(value: str)
     +value(): str
 }
 
 class ISBN <<value_object>> {
     -value: str
+    +ISBN(value: str)
     +value(): str
 }
 
 class Summary <<value_object>> {
+    {static} MAX_LENGTH: int = 1000
     -value: str
+    +Summary(value: str)
     +value(): str
 }
 
 class PublishedYear <<value_object>> {
+    {static} MIN_VALUE: int = 0
+    {static} MAX_VALUE: int = 9999
     -value: int
+    +PublishedYear(value: int)
     +value(): int
 }
 
 class PageCount <<value_object>> {
+    {static} MAX_VALUE: int = 10000
     -value: int
+    +PageCount(value: int)
     +value(): int
 }
 
 class Genre <<value_object>> {
+    {static} MAX_LENGTH: int = 50
     -name: str
+    +Genre(name: str)
     +name(): str
 }
 
 ' --- Review Value Objects ---
 
 class Rating <<value_object>> {
+    {static} MIN_VALUE: int = 1
+    {static} MAX_VALUE: int = 5
     -value: int
+    +Rating(value: int)
     +value(): int
 }
 
 class ReviewComment <<value_object>> {
+    {static} MAX_LENGTH: int = 2000
     -value: str
+    +ReviewComment(value: str)
     +value(): str
 }
 
 ' --- Author Value Objects ---
 
 class AuthorName <<value_object>> {
+    {static} MAX_LENGTH: int = 100
     -first_name: str
     -last_name: str
+    +AuthorName(first_name: str, last_name: str)
     +full_name(): str
 }
 
 class AuthorBiography <<value_object>> {
+    {static} MAX_LENGTH: int = 5000
     -value: str
+    +AuthorBiography(value: str)
     +value(): str
 }
 
