@@ -1,9 +1,7 @@
 from dataclasses import dataclass
-from typing import Self
 
 from bookshelf.domain.event.events import (
     AuthorBiographyChanged,
-    AuthorCreated,
     AuthorNameChanged,
 )
 from bookshelf.domain.exception.exceptions import RequiredFieldError
@@ -24,27 +22,6 @@ class Author(AggregateRoot[AuthorId]):
             raise RequiredFieldError(type(self).__name__, "name")
         if self._biography is None:
             raise RequiredFieldError(type(self).__name__, "biography")
-
-    @classmethod
-    def create(
-        cls,
-        *,
-        author_id: AuthorId,
-        name: AuthorName,
-        biography: AuthorBiography,
-    ) -> Self:
-        author = cls(
-            _id=author_id,
-            _name=name,
-            _biography=biography,
-        )
-        author._record_event(
-            AuthorCreated(
-                author_id=author_id,
-                name=name,
-            )
-        )
-        return author
 
     @property
     def name(self) -> AuthorName:

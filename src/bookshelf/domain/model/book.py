@@ -1,9 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Self
 
 from bookshelf.domain.event.events import (
-    BookCreated,
     BookIsbnChanged,
     BookSummaryChanged,
     BookTitleChanged,
@@ -14,7 +12,6 @@ from bookshelf.domain.event.events import (
 )
 from bookshelf.domain.exception.exceptions import (
     DuplicateGenreError,
-    DuplicateReviewError,
     GenreNotFoundError,
     LastGenreRemovalError,
     RequiredFieldError,
@@ -89,37 +86,6 @@ class Book(AggregateRoot[BookId]):
             raise RequiredFieldError(type(self).__name__, "published_year")
         if self._page_count is None:
             raise RequiredFieldError(type(self).__name__, "page_count")
-
-    @classmethod
-    def create(
-        cls,
-        *,
-        book_id: BookId,
-        author_id: AuthorId,
-        title: BookTitle,
-        isbn: ISBN,
-        summary: Summary,
-        published_year: PublishedYear,
-        page_count: PageCount,
-    ) -> Self:
-        book = cls(
-            _id=book_id,
-            _author_id=author_id,
-            _title=title,
-            _isbn=isbn,
-            _summary=summary,
-            _published_year=published_year,
-            _page_count=page_count,
-        )
-        book._record_event(
-            BookCreated(
-                book_id=book_id,
-                author_id=author_id,
-                title=title,
-                isbn=isbn,
-            )
-        )
-        return book
 
     @property
     def author_id(self) -> AuthorId:
@@ -223,15 +189,24 @@ class Book(AggregateRoot[BookId]):
                 return
         raise GenreNotFoundError(genre_name=genre.name)
 
-    def add_review(self, review: Review) -> None:
-        for existing in self._reviews:
-            if existing.id == review.id:
-                raise DuplicateReviewError(review_id=str(review.id))
+    def add_review(
+        self,
+        review_id: ReviewId,
+        rating: Rating,
+        comment: ReviewComment,
+        created_at: datetime,
+    ) -> None:
+        review = Review(
+            _id=review_id,
+            _rating=rating,
+            _comment=comment,
+            _created_at=created_at,
+        )
         self._reviews.append(review)
         self._record_event(
             ReviewAdded(
                 book_id=self._id,
-                review_id=review.id,
+                review_id=review_id,
             )
         )
 

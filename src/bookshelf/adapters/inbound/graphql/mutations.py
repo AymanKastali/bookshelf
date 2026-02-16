@@ -21,19 +21,6 @@ from bookshelf.adapters.inbound.graphql.types.common import (
     RemoveReviewResult,
     SuccessResponse,
 )
-from bookshelf.application.command.add_genre_to_book import AddGenreToBookCommand
-from bookshelf.application.command.add_review_to_book import AddReviewToBookCommand
-from bookshelf.application.command.change_author_biography import ChangeAuthorBiographyCommand
-from bookshelf.application.command.change_author_name import ChangeAuthorNameCommand
-from bookshelf.application.command.change_book_isbn import ChangeBookIsbnCommand
-from bookshelf.application.command.change_book_summary import ChangeBookSummaryCommand
-from bookshelf.application.command.change_book_title import ChangeBookTitleCommand
-from bookshelf.application.command.create_author import CreateAuthorCommand
-from bookshelf.application.command.create_book import CreateBookCommand
-from bookshelf.application.command.delete_author import DeleteAuthorCommand
-from bookshelf.application.command.delete_book import DeleteBookCommand
-from bookshelf.application.command.remove_genre_from_book import RemoveGenreFromBookCommand
-from bookshelf.application.command.remove_review_from_book import RemoveReviewFromBookCommand
 
 
 @strawberry.type
@@ -52,14 +39,12 @@ class Mutation:
         handler = info.context["create_book_handler"]
         try:
             book_id = await handler(
-                CreateBookCommand(
-                    author_id=author_id,
-                    title=title,
-                    isbn=isbn,
-                    summary=summary,
-                    published_year=published_year,
-                    page_count=page_count,
-                )
+                author_id=author_id,
+                title=title,
+                isbn=isbn,
+                summary=summary,
+                published_year=published_year,
+                page_count=page_count,
             )
             return CreateBookResponse(book_id=str(book_id))
         except Exception as exc:
@@ -76,11 +61,9 @@ class Mutation:
         handler = info.context["create_author_handler"]
         try:
             author_id = await handler(
-                CreateAuthorCommand(
-                    first_name=first_name,
-                    last_name=last_name,
-                    biography=biography,
-                )
+                first_name=first_name,
+                last_name=last_name,
+                biography=biography,
             )
             return CreateAuthorResponse(author_id=str(author_id))
         except Exception as exc:
@@ -92,7 +75,7 @@ class Mutation:
     ) -> ChangeBookTitleResult:
         handler = info.context["change_book_title_handler"]
         try:
-            await handler(ChangeBookTitleCommand(book_id=book_id, new_title=new_title))
+            await handler(book_id=book_id, new_title=new_title)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -103,7 +86,7 @@ class Mutation:
     ) -> ChangeBookIsbnResult:
         handler = info.context["change_book_isbn_handler"]
         try:
-            await handler(ChangeBookIsbnCommand(book_id=book_id, new_isbn=new_isbn))
+            await handler(book_id=book_id, new_isbn=new_isbn)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -114,9 +97,7 @@ class Mutation:
     ) -> ChangeBookSummaryResult:
         handler = info.context["change_book_summary_handler"]
         try:
-            await handler(
-                ChangeBookSummaryCommand(book_id=book_id, new_summary=new_summary)
-            )
+            await handler(book_id=book_id, new_summary=new_summary)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -127,9 +108,7 @@ class Mutation:
     ) -> AddGenreResult:
         handler = info.context["add_genre_to_book_handler"]
         try:
-            await handler(
-                AddGenreToBookCommand(book_id=book_id, genre_name=genre_name)
-            )
+            await handler(book_id=book_id, genre_name=genre_name)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -140,9 +119,7 @@ class Mutation:
     ) -> RemoveGenreResult:
         handler = info.context["remove_genre_from_book_handler"]
         try:
-            await handler(
-                RemoveGenreFromBookCommand(book_id=book_id, genre_name=genre_name)
-            )
+            await handler(book_id=book_id, genre_name=genre_name)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -154,9 +131,7 @@ class Mutation:
         handler = info.context["add_review_to_book_handler"]
         try:
             review_id = await handler(
-                AddReviewToBookCommand(
-                    book_id=book_id, rating=rating, comment=comment
-                )
+                book_id=book_id, rating=rating, comment=comment
             )
             return AddReviewResponse(review_id=str(review_id))
         except Exception as exc:
@@ -168,9 +143,7 @@ class Mutation:
     ) -> RemoveReviewResult:
         handler = info.context["remove_review_from_book_handler"]
         try:
-            await handler(
-                RemoveReviewFromBookCommand(book_id=book_id, review_id=review_id)
-            )
+            await handler(book_id=book_id, review_id=review_id)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -179,7 +152,7 @@ class Mutation:
     async def delete_book(self, info: Info, book_id: str) -> DeleteBookResult:
         handler = info.context["delete_book_handler"]
         try:
-            await handler(DeleteBookCommand(book_id=book_id))
+            await handler(book_id=book_id)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -191,9 +164,7 @@ class Mutation:
         handler = info.context["change_author_name_handler"]
         try:
             await handler(
-                ChangeAuthorNameCommand(
-                    author_id=author_id, first_name=first_name, last_name=last_name
-                )
+                author_id=author_id, first_name=first_name, last_name=last_name
             )
             return SuccessResponse()
         except Exception as exc:
@@ -205,11 +176,7 @@ class Mutation:
     ) -> ChangeAuthorBiographyResult:
         handler = info.context["change_author_biography_handler"]
         try:
-            await handler(
-                ChangeAuthorBiographyCommand(
-                    author_id=author_id, new_biography=new_biography
-                )
-            )
+            await handler(author_id=author_id, new_biography=new_biography)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -218,7 +185,7 @@ class Mutation:
     async def delete_author(self, info: Info, author_id: str) -> DeleteAuthorResult:
         handler = info.context["delete_author_handler"]
         try:
-            await handler(DeleteAuthorCommand(author_id=author_id))
+            await handler(author_id=author_id)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
