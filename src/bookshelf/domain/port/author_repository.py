@@ -10,3 +10,9 @@ class AuthorRepository(ABC):
 
     @abstractmethod
     async def find_by_id(self, id: AuthorId) -> Author | None: ...
+
+    @abstractmethod
+    async def find_all(self) -> list[Author]: ...
+
+    @abstractmethod
+    async def delete(self, author_id: AuthorId) -> None: ...

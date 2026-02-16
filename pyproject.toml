@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
-dependencies = []
+dependencies = [
+    "strawberry-graphql[asgi]==0.291.3",
+    "uvicorn[standard]==0.34.0",
+]
 
 [build-system]
 requires = ["hatchling"]

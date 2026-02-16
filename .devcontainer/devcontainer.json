@@ -36,6 +36,7 @@
           }
         },
         "python.analysis.typeCheckingMode": "basic",
+        "python.analysis.extraPaths": ["/app/src"],
         "python.analysis.autoImportCompletions": true,
         "files.insertFinalNewline": true,
         "files.trimTrailingWhitespace": true
