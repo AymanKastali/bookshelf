@@ -1,3 +1,5 @@
+from typing import Self
+
 import strawberry
 
 from bookshelf.adapters.inbound.graphql.types.interfaces import Node
@@ -13,9 +15,9 @@ class AuthorNameType:
         description="The author's full name (first + last)."
     )
 
-    @staticmethod
-    def from_domain(name: AuthorName) -> "AuthorNameType":
-        return AuthorNameType(
+    @classmethod
+    def from_domain(cls, name: AuthorName) -> Self:
+        return cls(
             first_name=name.first_name,
             last_name=name.last_name,
             full_name=name.full_name,
@@ -29,9 +31,9 @@ class AuthorType(Node):
     )
     biography: str = strawberry.field(description="A short biography of the author.")
 
-    @staticmethod
-    def from_domain(author: Author) -> "AuthorType":
-        return AuthorType(
+    @classmethod
+    def from_domain(cls, author: Author) -> Self:
+        return cls(
             id=strawberry.ID(str(author.id)),
             name=AuthorNameType.from_domain(author.name),
             biography=author.biography.value,

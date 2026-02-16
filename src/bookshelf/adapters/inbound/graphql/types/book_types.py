@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Self
 
 import strawberry
 from strawberry.types import Info
@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 class GenreType:
     name: str = strawberry.field(description="The name of the genre.")
 
-    @staticmethod
-    def from_domain(genre: Genre) -> "GenreType":
-        return GenreType(name=genre.name)
+    @classmethod
+    def from_domain(cls, genre: Genre) -> Self:
+        return cls(name=genre.name)
 
 
 @strawberry.type(description="A reader's review of a book.")
@@ -29,9 +29,9 @@ class ReviewType(Node):
         description="Timestamp when the review was created."
     )
 
-    @staticmethod
-    def from_domain(review: Review) -> "ReviewType":
-        return ReviewType(
+    @classmethod
+    def from_domain(cls, review: Review) -> Self:
+        return cls(
             id=strawberry.ID(str(review.id)),
             rating=review.rating.value,
             comment=review.comment.value,
@@ -77,9 +77,9 @@ class BookType(Node):
         author = await info.context["author_loader"].load(self.author_id)
         return AuthorType.from_domain(author)
 
-    @staticmethod
-    def from_domain(book: Book) -> "BookType":
-        return BookType(
+    @classmethod
+    def from_domain(cls, book: Book) -> Self:
+        return cls(
             id=strawberry.ID(str(book.id)),
             author_id=str(book.author_id),
             title=book.title.value,
