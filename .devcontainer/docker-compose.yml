@@ -1,0 +1,16 @@
+services:
+  app:
+    container_name: bookshelf
+    image: bookshelf-dev
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/app:cached
+    command: sleep infinity
+    init: true
+    tty: true
+    ports:
+      - "5678:5678"
+      - "8000:8000"
+  

@@ -1,0 +1,98 @@
+@startuml domain_exceptions
+!theme blueprint
+
+title Bookshelf — Domain Exceptions
+
+abstract class DomainException <<Exception>> {
+}
+
+abstract class DomainValidationError <<Exception>> {
+}
+
+class RequiredFieldError <<Exception>> {
+    entity_name : str
+    field_name : str
+}
+
+class EmptyBookTitleError <<Exception>> {
+    "Book title must not be empty"
+}
+
+class InvalidISBNError <<Exception>> {
+    "ISBN format is invalid"
+}
+
+class EmptySummaryError <<Exception>> {
+    "Summary must not be empty"
+}
+
+class InvalidPublishedYearError <<Exception>> {
+    "Published year is out of range"
+}
+
+class InvalidPageCountError <<Exception>> {
+    "Page count must be positive"
+}
+
+class EmptyGenreNameError <<Exception>> {
+    "Genre name must not be empty"
+}
+
+class InvalidRatingError <<Exception>> {
+    "Rating must be between 1 and 5"
+}
+
+class EmptyReviewCommentError <<Exception>> {
+    "Review comment must not be empty"
+}
+
+class EmptyAuthorNameError <<Exception>> {
+    "Author first and last name must not be empty"
+}
+
+class EmptyAuthorBiographyError <<Exception>> {
+    "Author biography must not be empty"
+}
+
+abstract class InvalidOperationError <<Exception>> {
+}
+
+class DuplicateReviewError <<Exception>> {
+    review_id : str
+}
+
+class ReviewNotFoundError <<Exception>> {
+    review_id : str
+}
+
+class DuplicateGenreError <<Exception>> {
+    genre_name : str
+}
+
+class GenreNotFoundError <<Exception>> {
+    genre_name : str
+}
+
+' ── Hierarchy ──────────────────────────────────────────────
+
+DomainException <|-- DomainValidationError
+DomainException <|-- InvalidOperationError
+
+DomainValidationError <|-- RequiredFieldError
+DomainValidationError <|-- EmptyBookTitleError
+DomainValidationError <|-- InvalidISBNError
+DomainValidationError <|-- EmptySummaryError
+DomainValidationError <|-- InvalidPublishedYearError
+DomainValidationError <|-- InvalidPageCountError
+DomainValidationError <|-- EmptyGenreNameError
+DomainValidationError <|-- InvalidRatingError
+DomainValidationError <|-- EmptyReviewCommentError
+DomainValidationError <|-- EmptyAuthorNameError
+DomainValidationError <|-- EmptyAuthorBiographyError
+
+InvalidOperationError <|-- DuplicateReviewError
+InvalidOperationError <|-- ReviewNotFoundError
+InvalidOperationError <|-- DuplicateGenreError
+InvalidOperationError <|-- GenreNotFoundError
+
+@enduml

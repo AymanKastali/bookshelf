@@ -1,0 +1,50 @@
+{
+  "name": "Bookshelf",
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/app",
+  "remoteUser": "vscode",
+  "postStartCommand": "uv sync",
+  // "postCreateCommand": "(uvx ruff check . || true) && (uvx ruff format --check . || true) && (uv run pytest || true)",  // informational checks on first create
+  // "postStartCommand": "uv sync && uv run pre-commit install && uv run alembic upgrade head",
+  // "postAttachCommand": "uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml",
+        "streetsidesoftware.code-spell-checker",
+        "mhutchie.git-graph",
+        "shd101wyy.markdown-preview-enhanced",
+        "eamodio.gitlens",
+        "jebbs.plantuml",
+        "cweijan.vscode-postgresql-client2"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+          }
+        },
+        "python.analysis.typeCheckingMode": "basic",
+        "python.analysis.autoImportCompletions": true,
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+  // Ports are defined in docker-compose.yml
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  }
+}

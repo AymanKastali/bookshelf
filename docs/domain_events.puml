@@ -1,0 +1,67 @@
+@startuml domain_events
+!theme blueprint
+
+title Bookshelf — Domain Events
+
+package "Book Events" {
+    class BookCreated <<Domain Event>> {
+        book_id : BookId
+        author_id : AuthorId
+        title : BookTitle
+        isbn : ISBN
+    }
+
+    class BookTitleChanged <<Domain Event>> {
+        book_id : BookId
+        new_title : BookTitle
+    }
+
+    class BookIsbnChanged <<Domain Event>> {
+        book_id : BookId
+        new_isbn : ISBN
+    }
+
+    class BookSummaryChanged <<Domain Event>> {
+        book_id : BookId
+        new_summary : Summary
+    }
+
+    class GenreAdded <<Domain Event>> {
+        book_id : BookId
+        genre : Genre
+    }
+
+    class GenreRemoved <<Domain Event>> {
+        book_id : BookId
+        genre : Genre
+    }
+
+    class ReviewAdded <<Domain Event>> {
+        book_id : BookId
+        review_id : ReviewId
+    }
+
+    class ReviewRemoved <<Domain Event>> {
+        book_id : BookId
+        review_id : ReviewId
+    }
+}
+
+package "Author Events" {
+    class AuthorCreated <<Domain Event>> {
+        author_id : AuthorId
+        name : AuthorName
+    }
+
+    class AuthorNameChanged <<Domain Event>> {
+        author_id : AuthorId
+        new_name : AuthorName
+    }
+
+    class AuthorBiographyChanged <<Domain Event>> {
+        author_id : AuthorId
+        new_biography : AuthorBiography
+    }
+}
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml author
+!theme blueprint
+
+title Author Aggregate
+
+class Author <<aggregate_root>> {
+    -id: AuthorId
+    -name: AuthorName
+    -biography: AuthorBiography
+
+    +id(): AuthorId
+    +name(): AuthorName
+    +biography(): AuthorBiography
+
+    +change_name(new_name: AuthorName): void
+    +change_biography(new_biography: AuthorBiography): void
+}
+
+@enduml

@@ -1,0 +1,52 @@
+@startuml book
+!theme blueprint
+
+title Book Aggregate
+
+class Book <<aggregate_root>> {
+    -id: BookId
+    -author_id: AuthorId
+    -title: BookTitle
+    -isbn: ISBN
+    -summary: Summary
+    -published_year: PublishedYear
+    -page_count: PageCount
+    -genres: list[Genre]
+    -reviews: list[Review]
+
+    +id(): BookId
+    +author_id(): AuthorId
+    +title(): BookTitle
+    +isbn(): ISBN
+    +summary(): Summary
+    +published_year(): PublishedYear
+    +page_count(): PageCount
+    +genres(): list[Genre]
+    +reviews(): list[Review]
+
+    +change_title(new_title: BookTitle): void
+    +change_isbn(new_isbn: ISBN): void
+    +change_summary(new_summary: Summary): void
+    +add_genre(genre: Genre): void
+    +remove_genre(genre: Genre): void
+    +add_review(review: Review): void
+    +remove_review(review_id: ReviewId): void
+}
+
+class Review <<entity>> {
+    -id: ReviewId
+    -rating: Rating
+    -comment: ReviewComment
+    -created_at: datetime
+
+    +id(): ReviewId
+    +rating(): Rating
+    +comment(): ReviewComment
+    +created_at(): datetime
+}
+
+Book *-- "0..*" Review : owns >
+Book --> AuthorId : references >
+Book *-- "1..*" Genre
+
+@enduml

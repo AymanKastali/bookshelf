@@ -1,0 +1,27 @@
+@startuml repositories
+!theme blueprint
+
+title Bookshelf — Repository Interfaces
+
+class Book <<Aggregate Root>> {
+}
+
+class Author <<Aggregate Root>> {
+}
+
+abstract class BookRepository <<Repository>> {
+    {abstract} save(book: Book)
+    {abstract} find_by_id(id: BookId) : Book | None
+    {abstract} find_by_author(author_id: AuthorId) : list[Book]
+    {abstract} find_by_isbn(isbn: ISBN) : Book | None
+}
+
+abstract class AuthorRepository <<Repository>> {
+    {abstract} save(author: Author)
+    {abstract} find_by_id(id: AuthorId) : Author | None
+}
+
+BookRepository ..> Book
+AuthorRepository ..> Author
+
+@enduml

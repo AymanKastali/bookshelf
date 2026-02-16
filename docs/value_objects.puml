@@ -1,0 +1,80 @@
+@startuml value_objects
+!theme blueprint
+
+title Value Objects
+
+' --- Identity Value Objects ---
+
+class BookId <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+class AuthorId <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+class ReviewId <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+' --- Book Value Objects ---
+
+class BookTitle <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+class ISBN <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+class Summary <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+class PublishedYear <<value_object>> {
+    -value: int
+    +value(): int
+}
+
+class PageCount <<value_object>> {
+    -value: int
+    +value(): int
+}
+
+class Genre <<value_object>> {
+    -name: str
+    +name(): str
+}
+
+' --- Review Value Objects ---
+
+class Rating <<value_object>> {
+    -value: int
+    +value(): int
+}
+
+class ReviewComment <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+' --- Author Value Objects ---
+
+class AuthorName <<value_object>> {
+    -first_name: str
+    -last_name: str
+    +full_name(): str
+}
+
+class AuthorBiography <<value_object>> {
+    -value: str
+    +value(): str
+}
+
+@enduml
