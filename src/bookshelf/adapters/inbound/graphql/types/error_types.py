@@ -1,7 +1,7 @@
 import strawberry
 
 
-@strawberry.type
+@strawberry.type(description="Represents an error returned by the API.")
 class ErrorType:
-    code: str
-    message: str
+    code: str = strawberry.field(description="Machine-readable error code.")
+    message: str = strawberry.field(description="Human-readable error message.")

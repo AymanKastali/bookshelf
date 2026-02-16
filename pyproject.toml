@@ -3,11 +3,12 @@ name = "bookshelf"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14,<3.15"
+requires-python = ">=3.13"
 dependencies = [
     "python-ulid==3.0.0",
-    "strawberry-graphql[asgi]==0.291.3",
+    "strawberry-graphql[fastapi]==0.291.3",
     "uvicorn[standard]==0.34.0",
+    "fastapi==0.115.0",
 ]
 
 [build-system]

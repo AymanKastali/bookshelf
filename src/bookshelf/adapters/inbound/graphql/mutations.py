@@ -2,6 +2,8 @@ import strawberry
 from strawberry.types import Info
 
 from bookshelf.adapters.inbound.graphql.error_handling import map_exception_to_error
+from bookshelf.adapters.inbound.graphql.permissions import IsAuthenticated
+from bookshelf.adapters.inbound.graphql.types.book_types import BookType, ReviewType
 from bookshelf.adapters.inbound.graphql.types.common import (
     AddGenreResult,
     AddReviewResponse,
@@ -21,134 +23,154 @@ from bookshelf.adapters.inbound.graphql.types.common import (
     RemoveReviewResult,
     SuccessResponse,
 )
+from bookshelf.adapters.inbound.graphql.types.inputs import (
+    AddGenreInput,
+    AddReviewInput,
+    ChangeAuthorBiographyInput,
+    ChangeAuthorNameInput,
+    ChangeBookIsbnInput,
+    ChangeBookSummaryInput,
+    ChangeBookTitleInput,
+    CreateAuthorInput,
+    CreateBookInput,
+    RemoveGenreInput,
+    RemoveReviewInput,
+)
 
 
-@strawberry.type
+@strawberry.type(description="Root mutation type for the Bookshelf API.")
 class Mutation:
-    @strawberry.mutation
+    @strawberry.mutation(description="Create a new book in the catalog.")
     async def create_book(
         self,
         info: Info,
-        author_id: str,
-        title: str,
-        isbn: str,
-        summary: str,
-        published_year: int,
-        page_count: int,
+        input: CreateBookInput,
     ) -> CreateBookResult:
         handler = info.context["create_book_handler"]
         try:
             book_id = await handler(
-                author_id=author_id,
-                title=title,
-                isbn=isbn,
-                summary=summary,
-                published_year=published_year,
-                page_count=page_count,
+                author_id=input.author_id,
+                title=input.title,
+                isbn=input.isbn,
+                summary=input.summary,
+                published_year=input.published_year,
+                page_count=input.page_count,
             )
+            broadcaster = info.context["broadcaster"]
+            get_book = info.context["get_book_by_id_handler"]
+            book = await get_book(book_id=str(book_id))
+            await broadcaster.publish_book(BookType.from_domain(book))
             return CreateBookResponse(book_id=str(book_id))
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Create a new author.")
     async def create_author(
         self,
         info: Info,
-        first_name: str,
-        last_name: str,
-        biography: str,
+        input: CreateAuthorInput,
     ) -> CreateAuthorResult:
         handler = info.context["create_author_handler"]
         try:
             author_id = await handler(
-                first_name=first_name,
-                last_name=last_name,
-                biography=biography,
+                first_name=input.first_name,
+                last_name=input.last_name,
+                biography=input.biography,
             )
             return CreateAuthorResponse(author_id=str(author_id))
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Change the title of an existing book.")
     async def change_book_title(
-        self, info: Info, book_id: str, new_title: str
+        self, info: Info, input: ChangeBookTitleInput
     ) -> ChangeBookTitleResult:
         handler = info.context["change_book_title_handler"]
         try:
-            await handler(book_id=book_id, new_title=new_title)
+            await handler(book_id=input.book_id, new_title=input.new_title)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Change the ISBN of an existing book.")
     async def change_book_isbn(
-        self, info: Info, book_id: str, new_isbn: str
+        self, info: Info, input: ChangeBookIsbnInput
     ) -> ChangeBookIsbnResult:
         handler = info.context["change_book_isbn_handler"]
         try:
-            await handler(book_id=book_id, new_isbn=new_isbn)
+            await handler(book_id=input.book_id, new_isbn=input.new_isbn)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Change the summary of an existing book.")
     async def change_book_summary(
-        self, info: Info, book_id: str, new_summary: str
+        self, info: Info, input: ChangeBookSummaryInput
     ) -> ChangeBookSummaryResult:
         handler = info.context["change_book_summary_handler"]
         try:
-            await handler(book_id=book_id, new_summary=new_summary)
+            await handler(book_id=input.book_id, new_summary=input.new_summary)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Add a literary genre to a book.")
     async def add_genre_to_book(
-        self, info: Info, book_id: str, genre_name: str
+        self, info: Info, input: AddGenreInput
     ) -> AddGenreResult:
         handler = info.context["add_genre_to_book_handler"]
         try:
-            await handler(book_id=book_id, genre_name=genre_name)
+            await handler(book_id=input.book_id, genre_name=input.genre.value)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Remove a literary genre from a book.")
     async def remove_genre_from_book(
-        self, info: Info, book_id: str, genre_name: str
+        self, info: Info, input: RemoveGenreInput
     ) -> RemoveGenreResult:
         handler = info.context["remove_genre_from_book_handler"]
         try:
-            await handler(book_id=book_id, genre_name=genre_name)
+            await handler(book_id=input.book_id, genre_name=input.genre.value)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Add a reader review to a book.")
     async def add_review_to_book(
-        self, info: Info, book_id: str, rating: int, comment: str
+        self, info: Info, input: AddReviewInput
     ) -> AddReviewResult:
         handler = info.context["add_review_to_book_handler"]
         try:
             review_id = await handler(
-                book_id=book_id, rating=rating, comment=comment
+                book_id=input.book_id, rating=input.rating, comment=input.comment
             )
+            broadcaster = info.context["broadcaster"]
+            get_book = info.context["get_book_by_id_handler"]
+            book = await get_book(book_id=input.book_id)
+            for review in book.reviews:
+                if str(review.id) == str(review_id):
+                    await broadcaster.publish_review(ReviewType.from_domain(review))
+                    break
             return AddReviewResponse(review_id=str(review_id))
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Remove a review from a book.")
     async def remove_review_from_book(
-        self, info: Info, book_id: str, review_id: str
+        self, info: Info, input: RemoveReviewInput
     ) -> RemoveReviewResult:
         handler = info.context["remove_review_from_book_handler"]
         try:
-            await handler(book_id=book_id, review_id=review_id)
+            await handler(book_id=input.book_id, review_id=input.review_id)
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(
+        description="Permanently delete a book. Requires authentication.",
+        permission_classes=[IsAuthenticated],
+    )
     async def delete_book(self, info: Info, book_id: str) -> DeleteBookResult:
         handler = info.context["delete_book_handler"]
         try:
@@ -157,31 +179,38 @@ class Mutation:
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Change an author's name.")
     async def change_author_name(
-        self, info: Info, author_id: str, first_name: str, last_name: str
+        self, info: Info, input: ChangeAuthorNameInput
     ) -> ChangeAuthorNameResult:
         handler = info.context["change_author_name_handler"]
         try:
             await handler(
-                author_id=author_id, first_name=first_name, last_name=last_name
+                author_id=input.author_id,
+                first_name=input.first_name,
+                last_name=input.last_name,
             )
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(description="Change an author's biography.")
     async def change_author_biography(
-        self, info: Info, author_id: str, new_biography: str
+        self, info: Info, input: ChangeAuthorBiographyInput
     ) -> ChangeAuthorBiographyResult:
         handler = info.context["change_author_biography_handler"]
         try:
-            await handler(author_id=author_id, new_biography=new_biography)
+            await handler(
+                author_id=input.author_id, new_biography=input.new_biography
+            )
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
-    @strawberry.mutation
+    @strawberry.mutation(
+        description="Permanently delete an author. Requires authentication.",
+        permission_classes=[IsAuthenticated],
+    )
     async def delete_author(self, info: Info, author_id: str) -> DeleteAuthorResult:
         handler = info.context["delete_author_handler"]
         try:

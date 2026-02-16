@@ -9,7 +9,7 @@
   "postStartCommand": "uv sync",
   // "postCreateCommand": "(uvx ruff check . || true) && (uvx ruff format --check . || true) && (uv run pytest || true)",  // informational checks on first create
   // "postStartCommand": "uv sync && uv run pre-commit install && uv run alembic upgrade head",
-  // "postAttachCommand": "uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
+  "postAttachCommand": "uv run uvicorn bookshelf.adapters.app:app --host 0.0.0.0 --port 8000 --reload --app-dir src",
   "customizations": {
     "vscode": {
       "extensions": [
