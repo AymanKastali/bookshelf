@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, Annotated, Self
 
 import strawberry
-from strawberry.types import Info
 
+from bookshelf.adapters.inbound.graphql.context import AppInfo
 from bookshelf.adapters.inbound.graphql.types.interfaces import Node
 from bookshelf.adapters.inbound.graphql.types.scalars import DateTime, ISBN
 from bookshelf.domain.model.book import Book, Review
@@ -35,7 +35,11 @@ class ReviewType(Node):
             id=strawberry.ID(str(review.id)),
             rating=review.rating.value,
             comment=review.comment.value,
-            created_at=DateTime.fromisoformat(review.created_at.isoformat()),
+            created_at=DateTime(
+                review.created_at.year, review.created_at.month, review.created_at.day,
+                review.created_at.hour, review.created_at.minute, review.created_at.second,
+                review.created_at.microsecond, review.created_at.tzinfo,
+            ),
         )
 
 
@@ -67,14 +71,17 @@ class BookType(Node):
 
     @strawberry.field(description="The author who wrote this book.")
     async def author(
-        self, info: Info
+        self, info: AppInfo
     ) -> Annotated[
         "AuthorType",
         strawberry.lazy("bookshelf.adapters.inbound.graphql.types.author_types"),
     ]:
         from bookshelf.adapters.inbound.graphql.types.author_types import AuthorType
 
-        author = await info.context["author_loader"].load(self.author_id)
+        author = await info.context.author_loader.load(self.author_id)
+        if author is None:
+            msg = f"Author with id '{self.author_id}' not found"
+            raise ValueError(msg)
         return AuthorType.from_domain(author)
 
     @classmethod

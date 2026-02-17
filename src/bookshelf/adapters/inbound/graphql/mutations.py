@@ -1,6 +1,6 @@
 import strawberry
-from strawberry.types import Info
 
+from bookshelf.adapters.inbound.graphql.context import AppInfo
 from bookshelf.adapters.inbound.graphql.error_handling import map_exception_to_error
 from bookshelf.adapters.inbound.graphql.permissions import IsAuthenticated
 from bookshelf.adapters.inbound.graphql.types.book_types import BookType, ReviewType
@@ -43,10 +43,10 @@ class Mutation:
     @strawberry.mutation(description="Create a new book in the catalog.")
     async def create_book(
         self,
-        info: Info,
+        info: AppInfo,
         input: CreateBookInput,
     ) -> CreateBookResult:
-        handler = info.context["create_book_handler"]
+        handler = info.context.create_book_handler
         try:
             book_id = await handler(
                 author_id=input.author_id,
@@ -56,8 +56,8 @@ class Mutation:
                 published_year=input.published_year,
                 page_count=input.page_count,
             )
-            broadcaster = info.context["broadcaster"]
-            get_book = info.context["get_book_by_id_handler"]
+            broadcaster = info.context.broadcaster
+            get_book = info.context.get_book_by_id_handler
             book = await get_book(book_id=str(book_id))
             await broadcaster.publish_book(BookType.from_domain(book))
             return CreateBookResponse(book_id=str(book_id))
@@ -67,10 +67,10 @@ class Mutation:
     @strawberry.mutation(description="Create a new author.")
     async def create_author(
         self,
-        info: Info,
+        info: AppInfo,
         input: CreateAuthorInput,
     ) -> CreateAuthorResult:
-        handler = info.context["create_author_handler"]
+        handler = info.context.create_author_handler
         try:
             author_id = await handler(
                 first_name=input.first_name,
@@ -83,9 +83,9 @@ class Mutation:
 
     @strawberry.mutation(description="Change the title of an existing book.")
     async def change_book_title(
-        self, info: Info, input: ChangeBookTitleInput
+        self, info: AppInfo, input: ChangeBookTitleInput
     ) -> ChangeBookTitleResult:
-        handler = info.context["change_book_title_handler"]
+        handler = info.context.change_book_title_handler
         try:
             await handler(book_id=input.book_id, new_title=input.new_title)
             return SuccessResponse()
@@ -94,9 +94,9 @@ class Mutation:
 
     @strawberry.mutation(description="Change the ISBN of an existing book.")
     async def change_book_isbn(
-        self, info: Info, input: ChangeBookIsbnInput
+        self, info: AppInfo, input: ChangeBookIsbnInput
     ) -> ChangeBookIsbnResult:
-        handler = info.context["change_book_isbn_handler"]
+        handler = info.context.change_book_isbn_handler
         try:
             await handler(book_id=input.book_id, new_isbn=input.new_isbn)
             return SuccessResponse()
@@ -105,9 +105,9 @@ class Mutation:
 
     @strawberry.mutation(description="Change the summary of an existing book.")
     async def change_book_summary(
-        self, info: Info, input: ChangeBookSummaryInput
+        self, info: AppInfo, input: ChangeBookSummaryInput
     ) -> ChangeBookSummaryResult:
-        handler = info.context["change_book_summary_handler"]
+        handler = info.context.change_book_summary_handler
         try:
             await handler(book_id=input.book_id, new_summary=input.new_summary)
             return SuccessResponse()
@@ -116,37 +116,37 @@ class Mutation:
 
     @strawberry.mutation(description="Add a literary genre to a book.")
     async def add_genre_to_book(
-        self, info: Info, input: AddGenreInput
+        self, info: AppInfo, input: AddGenreInput
     ) -> AddGenreResult:
-        handler = info.context["add_genre_to_book_handler"]
+        handler = info.context.add_genre_to_book_handler
         try:
-            await handler(book_id=input.book_id, genre_name=input.genre.value)
+            await handler(book_id=input.book_id, genre_name=str(input.genre.value))
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Remove a literary genre from a book.")
     async def remove_genre_from_book(
-        self, info: Info, input: RemoveGenreInput
+        self, info: AppInfo, input: RemoveGenreInput
     ) -> RemoveGenreResult:
-        handler = info.context["remove_genre_from_book_handler"]
+        handler = info.context.remove_genre_from_book_handler
         try:
-            await handler(book_id=input.book_id, genre_name=input.genre.value)
+            await handler(book_id=input.book_id, genre_name=str(input.genre.value))
             return SuccessResponse()
         except Exception as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Add a reader review to a book.")
     async def add_review_to_book(
-        self, info: Info, input: AddReviewInput
+        self, info: AppInfo, input: AddReviewInput
     ) -> AddReviewResult:
-        handler = info.context["add_review_to_book_handler"]
+        handler = info.context.add_review_to_book_handler
         try:
             review_id = await handler(
                 book_id=input.book_id, rating=input.rating, comment=input.comment
             )
-            broadcaster = info.context["broadcaster"]
-            get_book = info.context["get_book_by_id_handler"]
+            broadcaster = info.context.broadcaster
+            get_book = info.context.get_book_by_id_handler
             book = await get_book(book_id=input.book_id)
             for review in book.reviews:
                 if str(review.id) == str(review_id):
@@ -158,9 +158,9 @@ class Mutation:
 
     @strawberry.mutation(description="Remove a review from a book.")
     async def remove_review_from_book(
-        self, info: Info, input: RemoveReviewInput
+        self, info: AppInfo, input: RemoveReviewInput
     ) -> RemoveReviewResult:
-        handler = info.context["remove_review_from_book_handler"]
+        handler = info.context.remove_review_from_book_handler
         try:
             await handler(book_id=input.book_id, review_id=input.review_id)
             return SuccessResponse()
@@ -171,8 +171,8 @@ class Mutation:
         description="Permanently delete a book. Requires authentication.",
         permission_classes=[IsAuthenticated],
     )
-    async def delete_book(self, info: Info, book_id: str) -> DeleteBookResult:
-        handler = info.context["delete_book_handler"]
+    async def delete_book(self, info: AppInfo, book_id: str) -> DeleteBookResult:
+        handler = info.context.delete_book_handler
         try:
             await handler(book_id=book_id)
             return SuccessResponse()
@@ -181,9 +181,9 @@ class Mutation:
 
     @strawberry.mutation(description="Change an author's name.")
     async def change_author_name(
-        self, info: Info, input: ChangeAuthorNameInput
+        self, info: AppInfo, input: ChangeAuthorNameInput
     ) -> ChangeAuthorNameResult:
-        handler = info.context["change_author_name_handler"]
+        handler = info.context.change_author_name_handler
         try:
             await handler(
                 author_id=input.author_id,
@@ -196,9 +196,9 @@ class Mutation:
 
     @strawberry.mutation(description="Change an author's biography.")
     async def change_author_biography(
-        self, info: Info, input: ChangeAuthorBiographyInput
+        self, info: AppInfo, input: ChangeAuthorBiographyInput
     ) -> ChangeAuthorBiographyResult:
-        handler = info.context["change_author_biography_handler"]
+        handler = info.context.change_author_biography_handler
         try:
             await handler(
                 author_id=input.author_id, new_biography=input.new_biography
@@ -211,8 +211,8 @@ class Mutation:
         description="Permanently delete an author. Requires authentication.",
         permission_classes=[IsAuthenticated],
     )
-    async def delete_author(self, info: Info, author_id: str) -> DeleteAuthorResult:
-        handler = info.context["delete_author_handler"]
+    async def delete_author(self, info: AppInfo, author_id: str) -> DeleteAuthorResult:
+        handler = info.context.delete_author_handler
         try:
             await handler(author_id=author_id)
             return SuccessResponse()

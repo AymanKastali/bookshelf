@@ -1,8 +1,8 @@
 from typing import AsyncGenerator
 
 import strawberry
-from strawberry.types import Info
 
+from bookshelf.adapters.inbound.graphql.context import AppInfo
 from bookshelf.adapters.inbound.graphql.types.book_types import BookType, ReviewType
 
 
@@ -11,8 +11,8 @@ class Subscription:
     @strawberry.subscription(
         description="Subscribe to newly created books in real time."
     )
-    async def book_added(self, info: Info) -> AsyncGenerator[BookType, None]:
-        broadcaster = info.context["broadcaster"]
+    async def book_added(self, info: AppInfo) -> AsyncGenerator[BookType, None]:
+        broadcaster = info.context.broadcaster
         queue = broadcaster.subscribe_books()
         try:
             while True:
@@ -24,8 +24,8 @@ class Subscription:
     @strawberry.subscription(
         description="Subscribe to newly added reviews in real time."
     )
-    async def review_added(self, info: Info) -> AsyncGenerator[ReviewType, None]:
-        broadcaster = info.context["broadcaster"]
+    async def review_added(self, info: AppInfo) -> AsyncGenerator[ReviewType, None]:
+        broadcaster = info.context.broadcaster
         queue = broadcaster.subscribe_reviews()
         try:
             while True:
