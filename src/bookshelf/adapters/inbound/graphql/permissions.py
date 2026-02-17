@@ -1,12 +1,13 @@
 from strawberry.permission import BasePermission
-from strawberry.types import Info
+
+from bookshelf.adapters.inbound.graphql.context import AppInfo
 
 
 class IsAuthenticated(BasePermission):
     message = "Authentication required. Provide an Authorization header."
 
-    async def has_permission(self, source: object, info: Info, **kwargs: object) -> bool:
-        request = info.context.get("request")
+    async def has_permission(self, source: object, info: AppInfo, **kwargs: object) -> bool:
+        request = info.context.request
         if request is None:
             return False
         auth_header = request.headers.get("Authorization")

@@ -1,6 +1,6 @@
 import strawberry
-from strawberry.types import Info
 
+from bookshelf.adapters.inbound.graphql.context import AppInfo
 from bookshelf.adapters.inbound.graphql.error_handling import map_exception_to_error
 from bookshelf.adapters.inbound.graphql.types.author_types import AuthorType
 from bookshelf.adapters.inbound.graphql.types.book_types import BookType
@@ -18,8 +18,8 @@ from bookshelf.adapters.inbound.graphql.types.pagination import (
 @strawberry.type(description="Root query type for the Bookshelf API.")
 class Query:
     @strawberry.field(description="Fetch a single book by its ID.")
-    async def book(self, info: Info, book_id: str) -> GetBookResult:
-        handler = info.context["get_book_by_id_handler"]
+    async def book(self, info: AppInfo, book_id: str) -> GetBookResult:
+        handler = info.context.get_book_by_id_handler
         try:
             book = await handler(book_id=book_id)
             return BookType.from_domain(book)
@@ -31,14 +31,14 @@ class Query:
     )
     async def books(
         self,
-        info: Info,
+        info: AppInfo,
         first: int | None = None,
         after: str | None = None,
         last: int | None = None,
         before: str | None = None,
         sort_order: SortOrder = SortOrder.ASC,
     ) -> BookConnection:
-        handler = info.context["get_all_books_handler"]
+        handler = info.context.get_all_books_handler
         all_books = await handler()
         reverse = sort_order == SortOrder.DESC
         all_books.sort(key=lambda b: b.title.value, reverse=reverse)
@@ -55,14 +55,14 @@ class Query:
         )
 
     @strawberry.field(description="Fetch all books written by a specific author.")
-    async def books_by_author(self, info: Info, author_id: str) -> list[BookType]:
-        handler = info.context["get_books_by_author_handler"]
+    async def books_by_author(self, info: AppInfo, author_id: str) -> list[BookType]:
+        handler = info.context.get_books_by_author_handler
         books = await handler(author_id=author_id)
         return [BookType.from_domain(b) for b in books]
 
     @strawberry.field(description="Fetch a single author by their ID.")
-    async def author(self, info: Info, author_id: str) -> GetAuthorResult:
-        handler = info.context["get_author_by_id_handler"]
+    async def author(self, info: AppInfo, author_id: str) -> GetAuthorResult:
+        handler = info.context.get_author_by_id_handler
         try:
             author = await handler(author_id=author_id)
             return AuthorType.from_domain(author)
@@ -74,14 +74,14 @@ class Query:
     )
     async def authors(
         self,
-        info: Info,
+        info: AppInfo,
         first: int | None = None,
         after: str | None = None,
         last: int | None = None,
         before: str | None = None,
         sort_order: SortOrder = SortOrder.ASC,
     ) -> AuthorConnection:
-        handler = info.context["get_all_authors_handler"]
+        handler = info.context.get_all_authors_handler
         all_authors = await handler()
         reverse = sort_order == SortOrder.DESC
         all_authors.sort(key=lambda a: a.name.full_name, reverse=reverse)

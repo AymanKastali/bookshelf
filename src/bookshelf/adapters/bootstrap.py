@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Any
 
-from bookshelf.adapters.inbound.graphql.context import EventBroadcaster
+from starlette.requests import Request
+
+from bookshelf.adapters.inbound.graphql.context import EventBroadcaster, GraphQLContext
 from bookshelf.adapters.inbound.graphql.dataloaders import create_author_loader
 from bookshelf.adapters.outbound.persistence.in_memory_author_repository import (
     InMemoryAuthorRepository,
@@ -88,29 +89,32 @@ class Container:
         self.get_author_by_id_handler = GetAuthorById(self.author_repository)
         self.get_all_authors_handler = GetAllAuthors(self.author_repository)
 
-    def graphql_context(self) -> dict[str, Any]:
-        return {
-            # Application services
-            "create_book_handler": self.create_book_handler,
-            "create_author_handler": self.create_author_handler,
-            "change_book_title_handler": self.change_book_title_handler,
-            "change_book_isbn_handler": self.change_book_isbn_handler,
-            "change_book_summary_handler": self.change_book_summary_handler,
-            "add_genre_to_book_handler": self.add_genre_to_book_handler,
-            "remove_genre_from_book_handler": self.remove_genre_from_book_handler,
-            "add_review_to_book_handler": self.add_review_to_book_handler,
-            "remove_review_from_book_handler": self.remove_review_from_book_handler,
-            "delete_book_handler": self.delete_book_handler,
-            "change_author_name_handler": self.change_author_name_handler,
-            "change_author_biography_handler": self.change_author_biography_handler,
-            "delete_author_handler": self.delete_author_handler,
-            "get_book_by_id_handler": self.get_book_by_id_handler,
-            "get_all_books_handler": self.get_all_books_handler,
-            "get_books_by_author_handler": self.get_books_by_author_handler,
-            "get_author_by_id_handler": self.get_author_by_id_handler,
-            "get_all_authors_handler": self.get_all_authors_handler,
+    def graphql_context(self, request: Request) -> GraphQLContext:
+        return GraphQLContext(
+            # Command handlers
+            create_book_handler=self.create_book_handler,
+            create_author_handler=self.create_author_handler,
+            change_book_title_handler=self.change_book_title_handler,
+            change_book_isbn_handler=self.change_book_isbn_handler,
+            change_book_summary_handler=self.change_book_summary_handler,
+            add_genre_to_book_handler=self.add_genre_to_book_handler,
+            remove_genre_from_book_handler=self.remove_genre_from_book_handler,
+            add_review_to_book_handler=self.add_review_to_book_handler,
+            remove_review_from_book_handler=self.remove_review_from_book_handler,
+            delete_book_handler=self.delete_book_handler,
+            change_author_name_handler=self.change_author_name_handler,
+            change_author_biography_handler=self.change_author_biography_handler,
+            delete_author_handler=self.delete_author_handler,
+            # Query handlers
+            get_book_by_id_handler=self.get_book_by_id_handler,
+            get_all_books_handler=self.get_all_books_handler,
+            get_books_by_author_handler=self.get_books_by_author_handler,
+            get_author_by_id_handler=self.get_author_by_id_handler,
+            get_all_authors_handler=self.get_all_authors_handler,
             # DataLoader (fresh per request)
-            "author_loader": create_author_loader(self.author_repository),
+            author_loader=create_author_loader(self.author_repository),
             # Subscriptions
-            "broadcaster": self.broadcaster,
-        }
+            broadcaster=self.broadcaster,
+            # Request
+            request=request,
+        )
