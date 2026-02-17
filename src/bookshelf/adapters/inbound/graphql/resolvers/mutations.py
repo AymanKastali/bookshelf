@@ -3,7 +3,6 @@ import strawberry
 from bookshelf.adapters.inbound.graphql.context import AppInfo
 from bookshelf.adapters.inbound.graphql.middleware.error_handling import map_exception_to_error
 from bookshelf.adapters.inbound.graphql.middleware.permissions import IsAuthenticated
-from bookshelf.adapters.inbound.graphql.types.book import BookType, ReviewType
 from bookshelf.adapters.inbound.graphql.types.responses import (
     AddGenreResult,
     AddReviewResponse,
@@ -56,10 +55,6 @@ class Mutation:
                 published_year=input.published_year,
                 page_count=input.page_count,
             )
-            broadcaster = info.context.broadcaster
-            get_book = info.context.get_book_by_id_handler
-            book = await get_book(book_id=str(book_id))
-            await broadcaster.publish_book(BookType.from_read_model(book))
             return CreateBookResponse(book_id=str(book_id))
         except Exception as exc:
             return map_exception_to_error(exc)
@@ -145,13 +140,6 @@ class Mutation:
             review_id = await handler(
                 book_id=input.book_id, rating=input.rating, comment=input.comment
             )
-            broadcaster = info.context.broadcaster
-            get_book = info.context.get_book_by_id_handler
-            book = await get_book(book_id=input.book_id)
-            for review in book.reviews:
-                if review.id == str(review_id):
-                    await broadcaster.publish_review(ReviewType.from_read_model(review))
-                    break
             return AddReviewResponse(review_id=str(review_id))
         except Exception as exc:
             return map_exception_to_error(exc)

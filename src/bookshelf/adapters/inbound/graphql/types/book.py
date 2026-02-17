@@ -1,10 +1,11 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Self
 
 import strawberry
 
 from bookshelf.adapters.inbound.graphql.context import AppInfo
 from bookshelf.adapters.inbound.graphql.types.interfaces import Node
-from bookshelf.adapters.inbound.graphql.types.scalars import ISBN, DateTime
+from bookshelf.adapters.inbound.graphql.types.scalars import ISBN
 from bookshelf.application.read_models import (
     BookReadModel,
     GenreReadModel,
@@ -37,8 +38,8 @@ class ReviewType(Node):
         return self.source.comment
 
     @strawberry.field(description="Timestamp when the review was created.")
-    def created_at(self) -> DateTime:
-        return DateTime.from_datetime(self.source.created_at)
+    def created_at(self) -> datetime:
+        return self.source.created_at
 
     @classmethod
     def from_read_model(cls, review: ReviewReadModel) -> Self:

@@ -50,8 +50,6 @@ class GraphQLContext(BaseContext):
     # DataLoaders
     author_loader: DataLoader[str, AuthorReadModel | None]
     books_by_author_loader: DataLoader[str, list[BookReadModel]]
-    # Subscriptions
-    broadcaster: "EventBroadcaster"
     # Request
     request: Request | WebSocket | None = None
 

@@ -20,7 +20,12 @@ class DateTime(datetime):
     @classmethod
     def from_datetime(cls, dt: datetime) -> "DateTime":
         return cls(
-            dt.year, dt.month, dt.day,
-            dt.hour, dt.minute, dt.second,
-            dt.microsecond, dt.tzinfo,
+            dt.year,
+            dt.month,
+            dt.day,
+            dt.hour,
+            dt.minute,
+            dt.second,
+            dt.microsecond,
+            dt.tzinfo,
         )
