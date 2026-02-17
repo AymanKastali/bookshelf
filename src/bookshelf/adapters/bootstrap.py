@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
 
-from starlette.requests import Request
 
-from bookshelf.adapters.inbound.graphql.context import EventBroadcaster, GraphQLContext
-from bookshelf.adapters.inbound.graphql.dataloaders import create_author_loader
+from bookshelf.adapters.inbound.graphql.context import GraphQLContext
+from bookshelf.adapters.inbound.graphql.dataloaders import (
+    create_author_loader,
+    create_books_by_author_loader,
+)
 from bookshelf.adapters.outbound.persistence.in_memory_author_repository import (
     InMemoryAuthorRepository,
 )
@@ -27,7 +29,6 @@ from bookshelf.application.get_all_authors import GetAllAuthors
 from bookshelf.application.get_all_books import GetAllBooks
 from bookshelf.application.get_author_by_id import GetAuthorById
 from bookshelf.application.get_book_by_id import GetBookById
-from bookshelf.application.get_books_by_author import GetBooksByAuthor
 from bookshelf.application.remove_genre_from_book import RemoveGenreFromBook
 from bookshelf.application.remove_review_from_book import RemoveReviewFromBook
 from bookshelf.domain.factory.author_factory import DefaultAuthorFactory
@@ -45,7 +46,6 @@ class Container:
         # Infrastructure
         self.id_generator = UlidIdGenerator()
         self.clock = SystemClock()
-        self.broadcaster = EventBroadcaster()
 
         # Factories
         self.book_factory = DefaultBookFactory(self.id_generator)
@@ -85,11 +85,10 @@ class Container:
 
         self.get_book_by_id_handler = GetBookById(self.book_repository)
         self.get_all_books_handler = GetAllBooks(self.book_repository)
-        self.get_books_by_author_handler = GetBooksByAuthor(self.book_repository)
         self.get_author_by_id_handler = GetAuthorById(self.author_repository)
         self.get_all_authors_handler = GetAllAuthors(self.author_repository)
 
-    def graphql_context(self, request: Request) -> GraphQLContext:
+    def graphql_context(self) -> GraphQLContext:
         return GraphQLContext(
             # Command handlers
             create_book_handler=self.create_book_handler,
@@ -108,13 +107,9 @@ class Container:
             # Query handlers
             get_book_by_id_handler=self.get_book_by_id_handler,
             get_all_books_handler=self.get_all_books_handler,
-            get_books_by_author_handler=self.get_books_by_author_handler,
             get_author_by_id_handler=self.get_author_by_id_handler,
             get_all_authors_handler=self.get_all_authors_handler,
-            # DataLoader (fresh per request)
+            # DataLoaders (fresh per request)
             author_loader=create_author_loader(self.author_repository),
-            # Subscriptions
-            broadcaster=self.broadcaster,
-            # Request
-            request=request,
+            books_by_author_loader=create_books_by_author_loader(self.book_repository),
         )

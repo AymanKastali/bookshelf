@@ -1,6 +1,6 @@
 import logging
 
-from bookshelf.adapters.inbound.graphql.types.error_types import ErrorType
+from bookshelf.adapters.inbound.graphql.types.errors import ErrorType
 from bookshelf.application.exception import ApplicationError, AuthorNotFoundError, BookNotFoundError
 from bookshelf.domain.exception.exceptions import DomainException
 

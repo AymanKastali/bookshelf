@@ -16,4 +16,16 @@ class ISBN(str): ...
     serialize=lambda v: v.isoformat() if isinstance(v, datetime) else v,
     parse_value=lambda v: datetime.fromisoformat(v) if isinstance(v, str) else v,
 )
-class DateTime(datetime): ...
+class DateTime(datetime):
+    @classmethod
+    def from_datetime(cls, dt: datetime) -> "DateTime":
+        return cls(
+            dt.year,
+            dt.month,
+            dt.day,
+            dt.hour,
+            dt.minute,
+            dt.second,
+            dt.microsecond,
+            dt.tzinfo,
+        )

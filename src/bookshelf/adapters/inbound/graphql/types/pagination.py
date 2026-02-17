@@ -1,6 +1,11 @@
 import base64
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
+
+if TYPE_CHECKING:
+    from bookshelf.adapters.inbound.graphql.types.author import AuthorType
+    from bookshelf.adapters.inbound.graphql.types.book import BookType
 
 
 def encode_cursor(index: int) -> str:
@@ -31,7 +36,10 @@ class PageInfo:
 @strawberry.type(description="An edge in the book connection.")
 class BookEdge:
     cursor: str = strawberry.field(description="Opaque cursor for this edge.")
-    node: "BookType" = strawberry.field(description="The book at this edge.")
+    node: Annotated[
+        "BookType",
+        strawberry.lazy("bookshelf.adapters.inbound.graphql.types.book"),
+    ] = strawberry.field(description="The book at this edge.")
 
 
 @strawberry.type(description="A paginated list of books.")
@@ -46,7 +54,10 @@ class BookConnection:
 @strawberry.type(description="An edge in the author connection.")
 class AuthorEdge:
     cursor: str = strawberry.field(description="Opaque cursor for this edge.")
-    node: "AuthorType" = strawberry.field(description="The author at this edge.")
+    node: Annotated[
+        "AuthorType",
+        strawberry.lazy("bookshelf.adapters.inbound.graphql.types.author"),
+    ] = strawberry.field(description="The author at this edge.")
 
 
 @strawberry.type(description="A paginated list of authors.")
@@ -95,10 +106,3 @@ def paginate(
     )
 
     return sliced, cursors, page_info, total_count
-
-
-# Lazy imports to avoid circular dependencies
-from bookshelf.adapters.inbound.graphql.types.author_types import (
-    AuthorType,  # noqa: E402
-)
-from bookshelf.adapters.inbound.graphql.types.book_types import BookType  # noqa: E402
