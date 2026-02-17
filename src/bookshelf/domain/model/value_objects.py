@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import IntEnum, StrEnum
 from typing import ClassVar
 
 from bookshelf.domain.exception.exceptions import (
@@ -8,14 +9,11 @@ from bookshelf.domain.exception.exceptions import (
     EmptyAuthorBiographyError,
     EmptyAuthorNameError,
     EmptyBookTitleError,
-    EmptyGenreNameError,
     EmptyReviewCommentError,
     EmptySummaryError,
-    GenreNameTooLongError,
     InvalidISBNError,
     InvalidPageCountError,
     InvalidPublishedYearError,
-    InvalidRatingError,
     PageCountTooHighError,
     ReviewCommentTooLongError,
     SummaryTooLongError,
@@ -89,37 +87,33 @@ class PageCount:
             raise PageCountTooHighError(max_value=self.MAX_VALUE)
 
 
-@dataclass(frozen=True)
-class Genre:
-    MAX_LENGTH: ClassVar[int] = 50
+class Genre(StrEnum):
+    FICTION = "Fiction"
+    NON_FICTION = "Non-Fiction"
+    MYSTERY = "Mystery"
+    THRILLER = "Thriller"
+    ROMANCE = "Romance"
+    SCI_FI = "Sci-Fi"
+    FANTASY = "Fantasy"
+    HORROR = "Horror"
+    BIOGRAPHY = "Biography"
+    HISTORY = "History"
+    SCIENCE = "Science"
+    SELF_HELP = "Self-Help"
+    POETRY = "Poetry"
+    DRAMA = "Drama"
+    CHILDREN = "Children"
+    YOUNG_ADULT = "Young Adult"
+    GRAPHIC_NOVEL = "Graphic Novel"
+    OTHER = "Other"
 
-    name: str
 
-    def __post_init__(self) -> None:
-        if not self.name or not self.name.strip():
-            raise EmptyGenreNameError()
-        if len(self.name) > self.MAX_LENGTH:
-            raise GenreNameTooLongError(max_length=self.MAX_LENGTH)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Genre):
-            return NotImplemented
-        return self.name.lower() == other.name.lower()
-
-    def __hash__(self) -> int:
-        return hash(self.name.lower())
-
-
-@dataclass(frozen=True)
-class Rating:
-    MIN_VALUE: ClassVar[int] = 1
-    MAX_VALUE: ClassVar[int] = 5
-
-    value: int
-
-    def __post_init__(self) -> None:
-        if self.value is None or self.value < self.MIN_VALUE or self.value > self.MAX_VALUE:
-            raise InvalidRatingError()
+class Rating(IntEnum):
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
 
 
 @dataclass(frozen=True)

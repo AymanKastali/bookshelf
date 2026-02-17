@@ -2,8 +2,12 @@ from dataclasses import dataclass, field
 
 from starlette.requests import Request
 
-from bookshelf.adapters.inbound.graphql.context import EventBroadcaster, GraphQLContext
-from bookshelf.adapters.inbound.graphql.dataloaders import create_author_loader
+from bookshelf.adapters.inbound.graphql.broadcasting import EventBroadcaster
+from bookshelf.adapters.inbound.graphql.context import GraphQLContext
+from bookshelf.adapters.inbound.graphql.dataloaders import (
+    create_author_loader,
+    create_books_by_author_loader,
+)
 from bookshelf.adapters.outbound.persistence.in_memory_author_repository import (
     InMemoryAuthorRepository,
 )
@@ -108,11 +112,11 @@ class Container:
             # Query handlers
             get_book_by_id_handler=self.get_book_by_id_handler,
             get_all_books_handler=self.get_all_books_handler,
-            get_books_by_author_handler=self.get_books_by_author_handler,
             get_author_by_id_handler=self.get_author_by_id_handler,
             get_all_authors_handler=self.get_all_authors_handler,
-            # DataLoader (fresh per request)
+            # DataLoaders (fresh per request)
             author_loader=create_author_loader(self.author_repository),
+            books_by_author_loader=create_books_by_author_loader(self.book_repository),
             # Subscriptions
             broadcaster=self.broadcaster,
             # Request

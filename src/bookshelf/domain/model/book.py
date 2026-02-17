@@ -165,7 +165,7 @@ class Book(AggregateRoot[BookId]):
     def add_genre(self, genre: Genre) -> None:
         for existing in self._genres:
             if existing == genre:
-                raise DuplicateGenreError(genre_name=genre.name)
+                raise DuplicateGenreError(genre_name=genre.value)
         self._genres.append(genre)
         self._record_event(
             GenreAdded(
@@ -187,7 +187,7 @@ class Book(AggregateRoot[BookId]):
                     )
                 )
                 return
-        raise GenreNotFoundError(genre_name=genre.name)
+        raise GenreNotFoundError(genre_name=genre.value)
 
     def add_review(
         self,

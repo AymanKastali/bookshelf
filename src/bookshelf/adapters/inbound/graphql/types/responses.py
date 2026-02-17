@@ -2,9 +2,9 @@ from typing import Annotated
 
 import strawberry
 
-from bookshelf.adapters.inbound.graphql.types.author_types import AuthorType
-from bookshelf.adapters.inbound.graphql.types.book_types import BookType
-from bookshelf.adapters.inbound.graphql.types.error_types import ErrorType
+from bookshelf.adapters.inbound.graphql.types.author import AuthorType
+from bookshelf.adapters.inbound.graphql.types.book import BookType
+from bookshelf.adapters.inbound.graphql.types.errors import ErrorType
 
 
 @strawberry.type(description="Indicates that the operation completed successfully.")

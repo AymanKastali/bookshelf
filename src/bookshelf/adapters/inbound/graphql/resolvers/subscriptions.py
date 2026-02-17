@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 import strawberry
 
 from bookshelf.adapters.inbound.graphql.context import AppInfo
-from bookshelf.adapters.inbound.graphql.types.book_types import BookType, ReviewType
+from bookshelf.adapters.inbound.graphql.types.book import BookType, ReviewType
 
 
 @strawberry.type(description="Root subscription type for real-time events.")

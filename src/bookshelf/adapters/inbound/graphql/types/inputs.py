@@ -76,3 +76,37 @@ class ChangeAuthorNameInput:
 class ChangeAuthorBiographyInput:
     author_id: str = strawberry.field(description="The ID of the author to update.")
     new_biography: str = strawberry.field(description="The new biography text.")
+
+
+@strawberry.input(description="Filter criteria for querying books.")
+class BookFilter:
+    title: str | None = strawberry.field(
+        default=None, description="Case-insensitive substring match on title."
+    )
+    genres: list[GenreEnum] | None = strawberry.field(
+        default=None,
+        description="Match books having at least one of these genres.",
+    )
+    published_year_from: int | None = strawberry.field(
+        default=None, description="Minimum published year (inclusive)."
+    )
+    published_year_to: int | None = strawberry.field(
+        default=None, description="Maximum published year (inclusive)."
+    )
+    page_count_from: int | None = strawberry.field(
+        default=None, description="Minimum page count (inclusive)."
+    )
+    page_count_to: int | None = strawberry.field(
+        default=None, description="Maximum page count (inclusive)."
+    )
+    min_average_rating: float | None = strawberry.field(
+        default=None, description="Minimum average rating (inclusive)."
+    )
+
+
+@strawberry.input(description="Filter criteria for querying authors.")
+class AuthorFilter:
+    name: str | None = strawberry.field(
+        default=None,
+        description="Case-insensitive substring match on the author's full name.",
+    )
