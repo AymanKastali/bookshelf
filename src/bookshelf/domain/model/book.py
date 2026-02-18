@@ -12,6 +12,7 @@ from bookshelf.domain.event.events import (
 )
 from bookshelf.domain.exception.exceptions import (
     DuplicateGenreError,
+    DuplicateReviewError,
     GenreNotFoundError,
     LastGenreRemovalError,
     RequiredFieldError,
@@ -198,6 +199,9 @@ class Book(AggregateRoot[BookId]):
         comment: ReviewComment,
         created_at: datetime,
     ) -> None:
+        for existing in self._reviews:
+            if existing.id == review_id:
+                raise DuplicateReviewError(review_id=str(review_id))
         review = Review(
             _id=review_id,
             _rating=rating,

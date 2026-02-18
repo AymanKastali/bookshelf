@@ -210,6 +210,14 @@ class LastGenreRemovalError(InvalidOperationError):
         super().__init__("Cannot remove the last genre from a book")
 
 
+class DuplicateAuthorNameError(InvalidOperationError):
+    code: str = "DUPLICATE_AUTHOR_NAME"
+
+    def __init__(self, author_name: str) -> None:
+        self.author_name: str = author_name
+        super().__init__(f"Author '{author_name}' already exists")
+
+
 class AuthorHasBooksError(InvalidOperationError):
     code: str = "AUTHOR_HAS_BOOKS"
 

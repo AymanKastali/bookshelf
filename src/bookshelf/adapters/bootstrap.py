@@ -34,9 +34,12 @@ from bookshelf.application.remove_genre_from_book import RemoveGenreFromBook
 from bookshelf.application.remove_review_from_book import RemoveReviewFromBook
 from bookshelf.domain.factory.author_factory import DefaultAuthorFactory
 from bookshelf.domain.factory.book_factory import DefaultBookFactory
-from bookshelf.domain.service.verify_author_deletability import VerifyAuthorDeletability
+from bookshelf.domain.service.change_author_name_service import ChangeAuthorNameService
 from bookshelf.domain.service.change_isbn_service import ChangeIsbnService
-from bookshelf.domain.service.verify_isbn_uniqueness import VerifyIsbnUniqueness
+from bookshelf.domain.service.create_author_service import CreateAuthorService
+from bookshelf.domain.service.create_book_service import CreateBookService
+from bookshelf.domain.service.add_review_service import AddReviewService
+from bookshelf.domain.service.delete_author_service import DeleteAuthorService
 
 
 @dataclass
@@ -55,20 +58,22 @@ class Container:
         self.author_factory = DefaultAuthorFactory(self.id_generator)
 
         # Domain services
-        self.verify_isbn_uniqueness = VerifyIsbnUniqueness(self.book_repository)
-        self.change_isbn_service = ChangeIsbnService(self.verify_isbn_uniqueness)
-        self.verify_author_deletability = VerifyAuthorDeletability(self.book_repository)
+        self.change_isbn_service = ChangeIsbnService(self.book_repository)
+        self.change_author_name_service = ChangeAuthorNameService(self.author_repository)
+        self.create_book_service = CreateBookService(self.book_repository, self.book_factory)
+        self.create_author_service = CreateAuthorService(self.author_repository, self.author_factory)
+        self.add_review_service = AddReviewService(self.id_generator, self.clock)
+        self.delete_author_service = DeleteAuthorService(self.book_repository, self.author_repository)
 
         # Application services
         self.create_book_handler = CreateBook(
             self.book_repository,
             self.author_repository,
-            self.verify_isbn_uniqueness,
-            self.book_factory,
+            self.create_book_service,
             self.event_publisher,
         )
         self.create_author_handler = CreateAuthor(
-            self.author_repository, self.author_factory, self.event_publisher
+            self.author_repository, self.create_author_service, self.event_publisher
         )
         self.change_book_title_handler = ChangeBookTitle(
             self.book_repository, self.event_publisher
@@ -86,20 +91,20 @@ class Container:
             self.book_repository, self.event_publisher
         )
         self.add_review_to_book_handler = AddReviewToBook(
-            self.book_repository, self.id_generator, self.clock, self.event_publisher
+            self.book_repository, self.add_review_service, self.event_publisher
         )
         self.remove_review_from_book_handler = RemoveReviewFromBook(
             self.book_repository, self.event_publisher
         )
         self.delete_book_handler = DeleteBook(self.book_repository)
         self.change_author_name_handler = ChangeAuthorName(
-            self.author_repository, self.event_publisher
+            self.author_repository, self.change_author_name_service, self.event_publisher
         )
         self.change_author_biography_handler = ChangeAuthorBiography(
             self.author_repository, self.event_publisher
         )
         self.delete_author_handler = DeleteAuthor(
-            self.author_repository, self.verify_author_deletability
+            self.author_repository, self.delete_author_service
         )
 
         self.get_book_by_id_handler = GetBookById(self.book_repository)

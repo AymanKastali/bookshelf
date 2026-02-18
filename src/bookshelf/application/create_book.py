@@ -1,6 +1,5 @@
 from bookshelf.application.exception import AuthorNotFoundError
 from bookshelf.domain.exception.exceptions import InvalidGenreError
-from bookshelf.domain.port.book_factory import BookFactory
 from bookshelf.domain.port.event_publisher import EventPublisher
 from bookshelf.domain.model.identifiers import AuthorId, BookId
 from bookshelf.domain.model.value_objects import (
@@ -13,7 +12,7 @@ from bookshelf.domain.model.value_objects import (
 )
 from bookshelf.domain.port.author_repository import AuthorRepository
 from bookshelf.domain.port.book_repository import BookRepository
-from bookshelf.domain.service.verify_isbn_uniqueness import VerifyIsbnUniqueness
+from bookshelf.domain.service.create_book_service import CreateBookService
 
 
 class CreateBook:
@@ -21,14 +20,12 @@ class CreateBook:
         self,
         book_repository: BookRepository,
         author_repository: AuthorRepository,
-        verify_isbn_uniqueness: VerifyIsbnUniqueness,
-        book_factory: BookFactory,
+        create_book_service: CreateBookService,
         event_publisher: EventPublisher,
     ) -> None:
         self._book_repository = book_repository
         self._author_repository = author_repository
-        self._verify_isbn_uniqueness = verify_isbn_uniqueness
-        self._book_factory = book_factory
+        self._create_book_service = create_book_service
         self._event_publisher = event_publisher
 
     async def __call__(
@@ -46,9 +43,6 @@ class CreateBook:
         if author is None:
             raise AuthorNotFoundError(author_id)
 
-        isbn_vo = ISBN(isbn)
-        await self._verify_isbn_uniqueness(isbn_vo)
-
         genre_vos: list[Genre] = []
         for genre_name in genres:
             try:
@@ -56,10 +50,10 @@ class CreateBook:
             except ValueError:
                 raise InvalidGenreError(genre_name)
 
-        book = self._book_factory.create(
+        book = await self._create_book_service.create(
             author_id=aid,
             title=BookTitle(title),
-            isbn=isbn_vo,
+            isbn=ISBN(isbn),
             summary=Summary(summary),
             published_year=PublishedYear(published_year),
             page_count=PageCount(page_count),
