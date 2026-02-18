@@ -7,7 +7,9 @@ from bookshelf.domain.model.value_objects import ISBN
 
 class BookRepository(ABC):
     @abstractmethod
-    async def save(self, book: Book) -> None: ...
+    async def save(self, book: Book) -> None:
+        """Persist a book. Raises DuplicateIsbnError if another book has the same ISBN."""
+        ...
 
     @abstractmethod
     async def find_by_id(self, id: BookId) -> Book | None: ...

@@ -3,6 +3,7 @@ from bookshelf.domain.model.book import Book
 from bookshelf.domain.model.identifiers import AuthorId, BookId
 from bookshelf.domain.model.value_objects import (
     BookTitle,
+    Genre,
     ISBN,
     PageCount,
     PublishedYear,
@@ -25,6 +26,7 @@ class DefaultBookFactory(BookFactory):
         summary: Summary,
         published_year: PublishedYear,
         page_count: PageCount,
+        genres: list[Genre],
     ) -> Book:
         book_id = BookId(self._id_generator.generate())
         book = Book(
@@ -35,6 +37,7 @@ class DefaultBookFactory(BookFactory):
             _summary=summary,
             _published_year=published_year,
             _page_count=page_count,
+            _genres=genres,
         )
         book._record_event(
             BookCreated(

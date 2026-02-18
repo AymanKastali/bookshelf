@@ -81,6 +81,14 @@ class PageCountTooHighError(DomainValidationError):
         super().__init__(f"Page count must not exceed {max_value}")
 
 
+class InvalidGenreError(DomainValidationError):
+    code: str = "INVALID_GENRE"
+
+    def __init__(self, genre_name: str) -> None:
+        self.genre_name: str = genre_name
+        super().__init__(f"'{genre_name}' is not a valid genre")
+
+
 class EmptyGenreNameError(DomainValidationError):
     code: str = "EMPTY_GENRE_NAME"
 

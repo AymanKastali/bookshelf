@@ -86,6 +86,8 @@ class Book(AggregateRoot[BookId]):
             raise RequiredFieldError(type(self).__name__, "published_year")
         if self._page_count is None:
             raise RequiredFieldError(type(self).__name__, "page_count")
+        if not self._genres:
+            raise RequiredFieldError(type(self).__name__, "genres")
 
     @property
     def author_id(self) -> AuthorId:
@@ -140,7 +142,7 @@ class Book(AggregateRoot[BookId]):
             )
         )
 
-    def change_isbn(self, new_isbn: ISBN) -> None:
+    def _change_isbn(self, new_isbn: ISBN) -> None:
         if self._isbn == new_isbn:
             return
         self._isbn = new_isbn

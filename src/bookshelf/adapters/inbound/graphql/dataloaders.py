@@ -1,3 +1,5 @@
+import asyncio
+
 from strawberry.dataloader import DataLoader
 
 from bookshelf.application.read_models import (
@@ -17,11 +19,10 @@ def create_author_loader(
     """Create a DataLoader that batches author lookups by ID."""
 
     async def load_authors(keys: list[str]) -> list[AuthorReadModel | None]:
-        results: list[AuthorReadModel | None] = []
-        for key in keys:
-            author = await author_repository.find_by_id(AuthorId(key))
-            results.append(author_to_read_model(author) if author else None)
-        return results
+        authors = await asyncio.gather(
+            *(author_repository.find_by_id(AuthorId(key)) for key in keys)
+        )
+        return [author_to_read_model(a) if a else None for a in authors]
 
     return DataLoader(load_fn=load_authors)
 
@@ -32,10 +33,9 @@ def create_books_by_author_loader(
     """Create a DataLoader that batches book lookups by author ID."""
 
     async def load_books_by_author(keys: list[str]) -> list[list[BookReadModel]]:
-        results: list[list[BookReadModel]] = []
-        for key in keys:
-            books = await book_repository.find_by_author(AuthorId(key))
-            results.append([book_to_read_model(b) for b in books])
-        return results
+        results = await asyncio.gather(
+            *(book_repository.find_by_author(AuthorId(key)) for key in keys)
+        )
+        return [[book_to_read_model(b) for b in books] for books in results]
 
     return DataLoader(load_fn=load_books_by_author)

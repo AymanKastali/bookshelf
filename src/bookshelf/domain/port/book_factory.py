@@ -4,6 +4,7 @@ from bookshelf.domain.model.book import Book
 from bookshelf.domain.model.identifiers import AuthorId
 from bookshelf.domain.model.value_objects import (
     BookTitle,
+    Genre,
     ISBN,
     PageCount,
     PublishedYear,
@@ -22,4 +23,5 @@ class BookFactory(ABC):
         summary: Summary,
         published_year: PublishedYear,
         page_count: PageCount,
+        genres: list[Genre],
     ) -> Book: ...

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import strawberry
 
 
@@ -9,23 +7,3 @@ import strawberry
     parse_value=lambda v: v,
 )
 class ISBN(str): ...
-
-
-@strawberry.scalar(
-    description="An ISO 8601 encoded UTC datetime string (e.g. '2024-01-15T10:30:00').",
-    serialize=lambda v: v.isoformat() if isinstance(v, datetime) else v,
-    parse_value=lambda v: datetime.fromisoformat(v) if isinstance(v, str) else v,
-)
-class DateTime(datetime):
-    @classmethod
-    def from_datetime(cls, dt: datetime) -> "DateTime":
-        return cls(
-            dt.year,
-            dt.month,
-            dt.day,
-            dt.hour,
-            dt.minute,
-            dt.second,
-            dt.microsecond,
-            dt.tzinfo,
-        )
