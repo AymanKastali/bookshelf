@@ -13,7 +13,9 @@ from bookshelf.adapters.inbound.graphql.types.pagination import (
     paginate,
 )
 from bookshelf.adapters.inbound.graphql.types.responses import GetAuthorResult, GetBookResult
+from bookshelf.application.exception import ApplicationError
 from bookshelf.application.read_models import AuthorReadModel, BookReadModel
+from bookshelf.domain.exception.exceptions import DomainException
 
 
 def _apply_book_filter(
@@ -66,7 +68,7 @@ class Query:
         try:
             book = await handler(book_id=book_id)
             return BookType.from_read_model(book)
-        except Exception as exc:
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.field(
@@ -108,7 +110,7 @@ class Query:
             from bookshelf.adapters.inbound.graphql.types.author import AuthorType
 
             return AuthorType.from_read_model(author)
-        except Exception as exc:
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.field(

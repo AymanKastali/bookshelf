@@ -1,19 +1,17 @@
 from bookshelf.application.exception import AuthorNotFoundError
 from bookshelf.domain.model.identifiers import AuthorId
 from bookshelf.domain.port.author_repository import AuthorRepository
-from bookshelf.domain.service.verify_author_deletability import (
-    VerifyAuthorDeletability,
-)
+from bookshelf.domain.service.delete_author_service import DeleteAuthorService
 
 
 class DeleteAuthor:
     def __init__(
         self,
         author_repository: AuthorRepository,
-        verify_author_deletability: VerifyAuthorDeletability,
+        delete_author_service: DeleteAuthorService,
     ) -> None:
         self._author_repository = author_repository
-        self._verify_author_deletability = verify_author_deletability
+        self._delete_author_service = delete_author_service
 
     async def __call__(self, author_id: str) -> None:
         aid = AuthorId(author_id)
@@ -21,5 +19,4 @@ class DeleteAuthor:
         if author is None:
             raise AuthorNotFoundError(author_id)
 
-        await self._verify_author_deletability(aid)
-        await self._author_repository.delete(aid)
+        await self._delete_author_service.delete(aid)

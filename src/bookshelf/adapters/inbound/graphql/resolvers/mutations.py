@@ -3,9 +3,10 @@ import strawberry
 from bookshelf.adapters.inbound.graphql.context import AppInfo
 from bookshelf.adapters.inbound.graphql.middleware.error_handling import map_exception_to_error
 from bookshelf.adapters.inbound.graphql.middleware.permissions import IsAuthenticated
+from bookshelf.adapters.inbound.graphql.types.author import AuthorType
+from bookshelf.adapters.inbound.graphql.types.book import BookType
 from bookshelf.adapters.inbound.graphql.types.responses import (
     AddGenreResult,
-    AddReviewResponse,
     AddReviewResult,
     ChangeAuthorBiographyResult,
     ChangeAuthorNameResult,
@@ -35,6 +36,8 @@ from bookshelf.adapters.inbound.graphql.types.inputs import (
     RemoveGenreInput,
     RemoveReviewInput,
 )
+from bookshelf.application.exception import ApplicationError
+from bookshelf.domain.exception.exceptions import DomainException
 
 
 @strawberry.type(description="Root mutation type for the Bookshelf API.")
@@ -54,9 +57,10 @@ class Mutation:
                 summary=input.summary,
                 published_year=input.published_year,
                 page_count=input.page_count,
+                genres=[str(g.value) for g in input.genres],
             )
             return CreateBookResponse(book_id=str(book_id))
-        except Exception as exc:
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Create a new author.")
@@ -73,7 +77,7 @@ class Mutation:
                 biography=input.biography,
             )
             return CreateAuthorResponse(author_id=str(author_id))
-        except Exception as exc:
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Change the title of an existing book.")
@@ -83,8 +87,9 @@ class Mutation:
         handler = info.context.change_book_title_handler
         try:
             await handler(book_id=input.book_id, new_title=input.new_title)
-            return SuccessResponse()
-        except Exception as exc:
+            book = await info.context.get_book_by_id_handler(book_id=input.book_id)
+            return BookType.from_read_model(book)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Change the ISBN of an existing book.")
@@ -94,8 +99,9 @@ class Mutation:
         handler = info.context.change_book_isbn_handler
         try:
             await handler(book_id=input.book_id, new_isbn=input.new_isbn)
-            return SuccessResponse()
-        except Exception as exc:
+            book = await info.context.get_book_by_id_handler(book_id=input.book_id)
+            return BookType.from_read_model(book)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Change the summary of an existing book.")
@@ -105,8 +111,9 @@ class Mutation:
         handler = info.context.change_book_summary_handler
         try:
             await handler(book_id=input.book_id, new_summary=input.new_summary)
-            return SuccessResponse()
-        except Exception as exc:
+            book = await info.context.get_book_by_id_handler(book_id=input.book_id)
+            return BookType.from_read_model(book)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Add a literary genre to a book.")
@@ -116,8 +123,9 @@ class Mutation:
         handler = info.context.add_genre_to_book_handler
         try:
             await handler(book_id=input.book_id, genre_name=str(input.genre.value))
-            return SuccessResponse()
-        except Exception as exc:
+            book = await info.context.get_book_by_id_handler(book_id=input.book_id)
+            return BookType.from_read_model(book)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Remove a literary genre from a book.")
@@ -127,8 +135,9 @@ class Mutation:
         handler = info.context.remove_genre_from_book_handler
         try:
             await handler(book_id=input.book_id, genre_name=str(input.genre.value))
-            return SuccessResponse()
-        except Exception as exc:
+            book = await info.context.get_book_by_id_handler(book_id=input.book_id)
+            return BookType.from_read_model(book)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Add a reader review to a book.")
@@ -137,11 +146,12 @@ class Mutation:
     ) -> AddReviewResult:
         handler = info.context.add_review_to_book_handler
         try:
-            review_id = await handler(
+            await handler(
                 book_id=input.book_id, rating=input.rating, comment=input.comment
             )
-            return AddReviewResponse(review_id=str(review_id))
-        except Exception as exc:
+            book = await info.context.get_book_by_id_handler(book_id=input.book_id)
+            return BookType.from_read_model(book)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Remove a review from a book.")
@@ -151,8 +161,9 @@ class Mutation:
         handler = info.context.remove_review_from_book_handler
         try:
             await handler(book_id=input.book_id, review_id=input.review_id)
-            return SuccessResponse()
-        except Exception as exc:
+            book = await info.context.get_book_by_id_handler(book_id=input.book_id)
+            return BookType.from_read_model(book)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(
@@ -164,7 +175,7 @@ class Mutation:
         try:
             await handler(book_id=book_id)
             return SuccessResponse()
-        except Exception as exc:
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Change an author's name.")
@@ -178,8 +189,9 @@ class Mutation:
                 first_name=input.first_name,
                 last_name=input.last_name,
             )
-            return SuccessResponse()
-        except Exception as exc:
+            author = await info.context.get_author_by_id_handler(author_id=input.author_id)
+            return AuthorType.from_read_model(author)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(description="Change an author's biography.")
@@ -191,8 +203,9 @@ class Mutation:
             await handler(
                 author_id=input.author_id, new_biography=input.new_biography
             )
-            return SuccessResponse()
-        except Exception as exc:
+            author = await info.context.get_author_by_id_handler(author_id=input.author_id)
+            return AuthorType.from_read_model(author)
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)
 
     @strawberry.mutation(
@@ -204,5 +217,5 @@ class Mutation:
         try:
             await handler(author_id=author_id)
             return SuccessResponse()
-        except Exception as exc:
+        except (DomainException, ApplicationError) as exc:
             return map_exception_to_error(exc)

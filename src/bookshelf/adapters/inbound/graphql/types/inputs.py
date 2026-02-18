@@ -13,6 +13,9 @@ class CreateBookInput:
         description="The year the book was published."
     )
     page_count: int = strawberry.field(description="Total number of pages.")
+    genres: list[GenreEnum] = strawberry.field(
+        description="Initial genres for the book (at least one required)."
+    )
 
 
 @strawberry.input(description="Input for creating a new author.")

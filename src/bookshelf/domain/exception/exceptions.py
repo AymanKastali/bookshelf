@@ -81,6 +81,14 @@ class PageCountTooHighError(DomainValidationError):
         super().__init__(f"Page count must not exceed {max_value}")
 
 
+class InvalidGenreError(DomainValidationError):
+    code: str = "INVALID_GENRE"
+
+    def __init__(self, genre_name: str) -> None:
+        self.genre_name: str = genre_name
+        super().__init__(f"'{genre_name}' is not a valid genre")
+
+
 class EmptyGenreNameError(DomainValidationError):
     code: str = "EMPTY_GENRE_NAME"
 
@@ -200,6 +208,14 @@ class LastGenreRemovalError(InvalidOperationError):
 
     def __init__(self) -> None:
         super().__init__("Cannot remove the last genre from a book")
+
+
+class DuplicateAuthorNameError(InvalidOperationError):
+    code: str = "DUPLICATE_AUTHOR_NAME"
+
+    def __init__(self, author_name: str) -> None:
+        self.author_name: str = author_name
+        super().__init__(f"Author '{author_name}' already exists")
 
 
 class AuthorHasBooksError(InvalidOperationError):

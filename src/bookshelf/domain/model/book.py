@@ -12,6 +12,7 @@ from bookshelf.domain.event.events import (
 )
 from bookshelf.domain.exception.exceptions import (
     DuplicateGenreError,
+    DuplicateReviewError,
     GenreNotFoundError,
     LastGenreRemovalError,
     RequiredFieldError,
@@ -86,6 +87,8 @@ class Book(AggregateRoot[BookId]):
             raise RequiredFieldError(type(self).__name__, "published_year")
         if self._page_count is None:
             raise RequiredFieldError(type(self).__name__, "page_count")
+        if not self._genres:
+            raise RequiredFieldError(type(self).__name__, "genres")
 
     @property
     def author_id(self) -> AuthorId:
@@ -140,7 +143,7 @@ class Book(AggregateRoot[BookId]):
             )
         )
 
-    def change_isbn(self, new_isbn: ISBN) -> None:
+    def _change_isbn(self, new_isbn: ISBN) -> None:
         if self._isbn == new_isbn:
             return
         self._isbn = new_isbn
@@ -196,6 +199,9 @@ class Book(AggregateRoot[BookId]):
         comment: ReviewComment,
         created_at: datetime,
     ) -> None:
+        for existing in self._reviews:
+            if existing.id == review_id:
+                raise DuplicateReviewError(review_id=str(review_id))
         review = Review(
             _id=review_id,
             _rating=rating,

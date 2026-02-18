@@ -26,13 +26,6 @@ class CreateAuthorResponse:
     )
 
 
-@strawberry.type(description="Returned after a review is successfully added.")
-class AddReviewResponse:
-    review_id: str = strawberry.field(
-        description="The ID of the newly added review."
-    )
-
-
 CreateBookResult = Annotated[
     CreateBookResponse | ErrorType,
     strawberry.union("CreateBookResult", description="Result of creating a book."),
@@ -45,48 +38,48 @@ CreateAuthorResult = Annotated[
     ),
 ]
 
-AddReviewResult = Annotated[
-    AddReviewResponse | ErrorType,
-    strawberry.union("AddReviewResult", description="Result of adding a review."),
-]
-
 ChangeBookTitleResult = Annotated[
-    SuccessResponse | ErrorType,
+    BookType | ErrorType,
     strawberry.union(
         "ChangeBookTitleResult", description="Result of changing a book's title."
     ),
 ]
 
 ChangeBookIsbnResult = Annotated[
-    SuccessResponse | ErrorType,
+    BookType | ErrorType,
     strawberry.union(
         "ChangeBookIsbnResult", description="Result of changing a book's ISBN."
     ),
 ]
 
 ChangeBookSummaryResult = Annotated[
-    SuccessResponse | ErrorType,
+    BookType | ErrorType,
     strawberry.union(
         "ChangeBookSummaryResult", description="Result of changing a book's summary."
     ),
 ]
 
 AddGenreResult = Annotated[
-    SuccessResponse | ErrorType,
+    BookType | ErrorType,
     strawberry.union(
         "AddGenreResult", description="Result of adding a genre to a book."
     ),
 ]
 
 RemoveGenreResult = Annotated[
-    SuccessResponse | ErrorType,
+    BookType | ErrorType,
     strawberry.union(
         "RemoveGenreResult", description="Result of removing a genre from a book."
     ),
 ]
 
+AddReviewResult = Annotated[
+    BookType | ErrorType,
+    strawberry.union("AddReviewResult", description="Result of adding a review."),
+]
+
 RemoveReviewResult = Annotated[
-    SuccessResponse | ErrorType,
+    BookType | ErrorType,
     strawberry.union(
         "RemoveReviewResult", description="Result of removing a review from a book."
     ),
@@ -98,14 +91,14 @@ DeleteBookResult = Annotated[
 ]
 
 ChangeAuthorNameResult = Annotated[
-    SuccessResponse | ErrorType,
+    AuthorType | ErrorType,
     strawberry.union(
         "ChangeAuthorNameResult", description="Result of changing an author's name."
     ),
 ]
 
 ChangeAuthorBiographyResult = Annotated[
-    SuccessResponse | ErrorType,
+    AuthorType | ErrorType,
     strawberry.union(
         "ChangeAuthorBiographyResult",
         description="Result of changing an author's biography.",

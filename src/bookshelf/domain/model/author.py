@@ -31,7 +31,7 @@ class Author(AggregateRoot[AuthorId]):
     def biography(self) -> AuthorBiography:
         return self._biography
 
-    def change_name(self, new_name: AuthorName) -> None:
+    def _change_name(self, new_name: AuthorName) -> None:
         if self._name == new_name:
             return
         self._name = new_name
